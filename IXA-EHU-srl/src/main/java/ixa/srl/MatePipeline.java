@@ -147,12 +147,12 @@ public class MatePipeline {
 		return s;
 	}
 
-	public Document Pipeline(List<String> annotation, String lang, String option)
+	public static Document Pipeline(List<String> annotation, String lang, String option)
 			throws Exception {
 
 		Document doc = null;
 
-		String jarpath = this.getClass().getResource("").getPath();
+		String jarpath = MatePipeline.class.getResource("").getPath();
 		if (JARPATH_PATTERN_END.matcher(jarpath).find()) { // it IS a jar
 		    Matcher matcher = JARPATH_PATTERN_BEGIN.matcher(jarpath);
 		    jarpath = matcher.replaceAll("");		

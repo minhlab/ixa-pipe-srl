@@ -3,7 +3,6 @@ package ixa.srl;
 import ixa.kaflib.KAFDocument;
 
 import java.io.IOException;
-import java.util.Objects;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
