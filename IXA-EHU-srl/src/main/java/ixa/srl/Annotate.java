@@ -39,20 +39,20 @@ public class Annotate {
 	public void SRLToKAF(KAFDocument kaf, String lang, String option)
 			throws Exception {
 
-		if (lang.equals("eng")) {
+		if ("eng".equals(lang)) {
 			this.kaflang = "en";
-		} else if (lang.equals("spa")) {
+		} else if ("spa".equals(lang)) {
 			this.kaflang = "es";
 		}
 
    	        KAFDocument.LinguisticProcessor depsLP = null;
 		KAFDocument.LinguisticProcessor srlLP = null;
 
-		if (!option.equals("only-srl")) {
+		if (!"only-srl".equals(option)) {
 		    depsLP = kaf.addLinguisticProcessor("deps", "ixa-pipe-srl-" + kaflang, "1.0");
 		    depsLP.setBeginTimestamp();
 		}
-		if (!option.equals("only-deps")) {
+		if (!"only-deps".equals(option)) {
 		    srlLP = kaf.addLinguisticProcessor("srl", "ixa-pipe-srl-" + kaflang, "1.0");
 		    srlLP.setBeginTimestamp();
 		}
@@ -64,7 +64,7 @@ public class Annotate {
 		}));
 
 		HashMap<String, String> annotationlines = KAF2MateTerms(kaf);
-		if (option.equals("only-srl")) {
+		if ("only-srl".equals(option)) {
 			annotationlines = KAF2MateDeps(annotationlines, kaf, kaflang);
 		}
 		List<String> annotation = KAF2Mate(annotationlines, kaf);
@@ -73,11 +73,11 @@ public class Annotate {
 
 		System.setOut(printStreamOriginal);
 
-		if (!option.equals("only-srl")) {
+		if (!"only-srl".equals(option)) {
 			XMLMate2KAFDEPS(kaf, response);
 			depsLP.setEndTimestamp();
 		}
-		if (!option.equals("only-deps")) {
+		if (!"only-deps".equals(option)) {
 			XMLMate2KAFSRL(kaf, response);
 			srlLP.setEndTimestamp();
 		}
