@@ -29,11 +29,15 @@ public class PredicateMatrix {
 
 	public PredicateMatrix() {
 		try {
-		        String jarpath = this.getClass().getResource("").getPath();
+		    String jarpath = this.getClass().getResource("").getPath();
+	        if (JARPATH_PATTERN_END.matcher(jarpath).find()) { // it IS a jar
 		        Matcher matcher = JARPATH_PATTERN_BEGIN.matcher(jarpath);
 		        jarpath = matcher.replaceAll("");		
 		        matcher = JARPATH_PATTERN_END.matcher(jarpath);
 		        jarpath = matcher.replaceAll("");
+	        } else { // it is a bunch of classes, for example in target/test-classes
+	            jarpath = ".";
+	        }
 
 			BufferedReader pmReader = new BufferedReader(new InputStreamReader(new FileInputStream(jarpath + "PredicateMatrix/PredicateMatrix.txt"),Charset.forName("UTF-8")));
 
