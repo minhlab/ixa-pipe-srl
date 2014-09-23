@@ -166,6 +166,8 @@ public class MatePipeline {
 		    models[0] = jarpath + "/models/spa/CoNLL2009-ST-Spanish-ALL.anna-3.3.parser.model";
 		    models[1] = jarpath + "/models/spa/srl-spa.model";
 		    models[2] = jarpath + "/models/spa/CoNLL2009-ST-Spanish-ALL.anna-3.3.morphtagger.model";
+		} else {
+		    throw new IllegalArgumentException("Unsupported language: " + lang);
 		}
 
 
