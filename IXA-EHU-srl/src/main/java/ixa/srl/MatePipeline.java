@@ -153,10 +153,14 @@ public class MatePipeline {
 		Document doc = null;
 
 		String jarpath = this.getClass().getResource("").getPath();
-		Matcher matcher = JARPATH_PATTERN_BEGIN.matcher(jarpath);
-		jarpath = matcher.replaceAll("");		
-		matcher = JARPATH_PATTERN_END.matcher(jarpath);
-		jarpath = matcher.replaceAll("");
+		if (JARPATH_PATTERN_END.matcher(jarpath).find()) { // it IS a jar
+		    Matcher matcher = JARPATH_PATTERN_BEGIN.matcher(jarpath);
+		    jarpath = matcher.replaceAll("");		
+		    matcher = JARPATH_PATTERN_END.matcher(jarpath);
+		    jarpath = matcher.replaceAll("");
+        } else { // it is a bunch of classes, for example in target/test-classes
+            jarpath = ".";
+        }
 
 		String[] models = new String[3];
 		if (lang.equals("eng")) {
