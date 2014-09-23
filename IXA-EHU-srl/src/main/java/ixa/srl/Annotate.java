@@ -389,8 +389,12 @@ public class Annotate {
 			Term headterm = dep.getFrom();
 			if (headterm.getId().equals(term.getId())) {
 				Term childterm = dep.getTo();
-				listChilds.add(childterm);
-				listChilds = getAllChilds(kaf, listChilds, childterm);
+				// the check is needed to avoid stack overflow error when 
+				// there is an erroneous cyclic dependence between nodes
+				if (!listChilds.contains(childterm)) {
+				    listChilds.add(childterm);
+				    getAllChilds(kaf, listChilds, childterm);
+                }
 			}
 		}
 
