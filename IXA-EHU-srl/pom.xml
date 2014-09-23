@@ -58,6 +58,17 @@
 	</dependency>
 	
 	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-server</artifactId>
+		<version>9.2.3.v20140905</version>
+	</dependency>
+	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-client</artifactId>
+		<version>9.2.3.v20140905</version>
+	</dependency>
+		
+	<dependency>
 		<groupId>local</groupId>
  		<artifactId>srl</artifactId>
   		<version>1.0</version>
