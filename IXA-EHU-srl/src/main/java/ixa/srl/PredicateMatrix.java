@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 
 public class PredicateMatrix {
 
-        private static final Pattern JARPATH_PATTERN_BEGIN = Pattern.compile("file:");
+    private static final Pattern JARPATH_PATTERN_BEGIN = Pattern.compile("file:");
 	private static final Pattern JARPATH_PATTERN_END = Pattern.compile("[^/]+jar!.+");
 
 	private HashMap<String, ArrayList<String>> vnClass = new HashMap<String, ArrayList<String>>();
@@ -36,7 +36,7 @@ public class PredicateMatrix {
 		        matcher = JARPATH_PATTERN_END.matcher(jarpath);
 		        jarpath = matcher.replaceAll("");
 	        } else { // it is a bunch of classes, for example in target/test-classes
-	            jarpath = ".";
+	            jarpath = "./"; //TODO why is it different from MatePipeline?
 	        }
 
 			BufferedReader pmReader = new BufferedReader(new InputStreamReader(new FileInputStream(jarpath + "PredicateMatrix/PredicateMatrix.txt"),Charset.forName("UTF-8")));
