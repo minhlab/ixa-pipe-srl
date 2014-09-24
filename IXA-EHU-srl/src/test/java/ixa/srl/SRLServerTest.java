@@ -47,4 +47,20 @@ public class SRLServerTest extends TestCase {
         assertEquals(200, response.getStatus());
     }
 
+    public void testManyDocuments() throws Exception {
+        ContentProvider document = new InputStreamContentProvider(
+                SRLServerTest.class.getResourceAsStream("/sample-01.naf"));
+        // let the server init first
+        client.POST("http://localhost:8080?lang=eng").content(document).send();
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 10; i++) {
+            ContentResponse response = client
+                    .POST("http://localhost:8080?lang=eng").content(document)
+                    .send();
+            assertEquals(200, response.getStatus());
+        }
+        long stop = System.currentTimeMillis();
+        assertTrue("Processing takes too long", stop-start < 1000);
+    }
+
 }

@@ -21,6 +21,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 
+import se.lth.cs.srl.options.CompletePipelineCMDLineOptions;
+
 public class Annotate {
 
 	private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
@@ -36,8 +38,13 @@ public class Annotate {
 		mate = new MatePipeline();
 	}
 
-	public void SRLToKAF(KAFDocument kaf, String lang, String option)
-			throws Exception {
+    public void SRLToKAF(KAFDocument kaf, String lang, String option)
+            throws Exception {
+        SRLToKAF(kaf, lang, option, null);
+    }
+
+    public void SRLToKAF(KAFDocument kaf, String lang, String option, MatePipeline pipeline)
+            throws Exception {
 
 		if ("eng".equals(lang)) {
 			this.kaflang = "en";
@@ -45,7 +52,7 @@ public class Annotate {
 			this.kaflang = "es";
 		}
 
-   	        KAFDocument.LinguisticProcessor depsLP = null;
+   	    KAFDocument.LinguisticProcessor depsLP = null;
 		KAFDocument.LinguisticProcessor srlLP = null;
 
 		if (!"only-srl".equals(option)) {
@@ -69,7 +76,13 @@ public class Annotate {
 		}
 		List<String> annotation = KAF2Mate(annotationlines, kaf);
 
-		Document response = annotate(annotation, lang, option);
+		CompletePipelineCMDLineOptions options = 
+		        MatePipeline.parseOptions(lang, option);
+		if (pipeline == null) {
+		    pipeline = MatePipeline.getCompletePipeline(options, option);
+        }
+        Document response = MatePipeline.parseCoNLL09(options, option,
+                pipeline, annotation);
 
 		System.setOut(printStreamOriginal);
 
@@ -201,12 +214,6 @@ public class Annotate {
 			}
 		}
 		return annotationlines;
-	}
-
-	private Document annotate(List<String> annotation, String lang,
-			String option) throws Exception {
-		Document response = mate.Pipeline(annotation, lang, option);
-		return response;
 	}
 
 	private void XMLMate2KAFDEPS(KAFDocument kaf, Document doc) {

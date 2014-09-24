@@ -149,10 +149,16 @@ public class MatePipeline {
 
 	public static Document Pipeline(List<String> annotation, String lang, String option)
 			throws Exception {
-
 		Document doc = null;
+		CompletePipelineCMDLineOptions options = parseOptions(lang, option);
+		MatePipeline pipeline = getCompletePipeline(options, option);
+		doc = parseCoNLL09(options, option, pipeline, annotation);
+		return doc;
+	}
 
-		String jarpath = MatePipeline.class.getResource("").getPath();
+    public static CompletePipelineCMDLineOptions parseOptions(String lang,
+            String option) {
+        String jarpath = MatePipeline.class.getResource("").getPath();
 		if (JARPATH_PATTERN_END.matcher(jarpath).find()) { // it IS a jar
 		    Matcher matcher = JARPATH_PATTERN_BEGIN.matcher(jarpath);
 		    jarpath = matcher.replaceAll("");		
@@ -226,22 +232,20 @@ public class MatePipeline {
 
 		CompletePipelineCMDLineOptions options = new CompletePipelineCMDLineOptions();
 		options.parseCmdLineArgs(arguments);
+
 		// String
-		// error=FileExistenceVerifier.verifyCompletePipelineAllNecessaryModelFiles(options);
-		// if(error!=null){
-		// System.err.println(error);
-		// System.err.println();
-		// System.err.println("Aborting.");
-		// System.exit(1);
-		// }
+        // error=FileExistenceVerifier.verifyCompletePipelineAllNecessaryModelFiles(options);
+        // if(error!=null){
+        // System.err.println(error);
+        // System.err.println();
+        // System.err.println("Aborting.");
+        // System.exit(1);
+        // }
 
-		MatePipeline pipeline = getCompletePipeline(options, option);
-		doc = parseCoNLL09(options, option, pipeline, annotation);
+        return options;
+    }
 
-		return doc;
-	}
-
-	private static Document parseCoNLL09(
+	public static Document parseCoNLL09(
 			CompletePipelineCMDLineOptions options, String option,
 			MatePipeline pipeline, List<String> in) throws IOException,
 			Exception {

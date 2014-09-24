@@ -12,6 +12,8 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
+import se.lth.cs.srl.options.CompletePipelineCMDLineOptions;
+
 public class SRLServer {
 
     private static final int DEFAULT_PORT = 8080;
@@ -45,6 +47,9 @@ public class SRLServer {
     public static class Handler extends AbstractHandler
     {
         private Annotate annotator = new Annotate();
+        private String currLang = "";
+        private String currOption = "";
+        private MatePipeline currPipeline = null;
         
         public synchronized void handle(String target, Request baseRequest,
                 HttpServletRequest request, HttpServletResponse response)
@@ -58,13 +63,26 @@ public class SRLServer {
                 String lang = firstNotNull(request.getParameter("lang"), "eng");
                 String option = firstNotNull(request.getParameter("option"), "");
                 KAFDocument kaf = KAFDocument.createFromStream(request.getReader());
-                annotator.SRLToKAF(kaf, lang, option);
+                annotator.SRLToKAF(kaf, lang, option, getMatePipeline(lang, option));
                 response.getWriter().write(kaf.toString());
 
                 baseRequest.setHandled(true);
             } catch (Exception e) {
                 throw new ServletException(e);
             }
+        }
+        
+        private synchronized MatePipeline getMatePipeline(String lang,
+                String option) throws Exception {
+            if (currPipeline == null ||
+                    !currLang.equals(lang) || !currOption.equals(option)) {
+                CompletePipelineCMDLineOptions options = 
+                        MatePipeline.parseOptions(lang, option);
+                currPipeline = MatePipeline.getCompletePipeline(options, option);
+                currLang = lang;
+                currOption = option;
+            }
+            return currPipeline;
         }
 
         private String firstNotNull(String... strings) {
