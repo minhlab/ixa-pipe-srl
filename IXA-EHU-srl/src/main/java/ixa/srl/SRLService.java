@@ -2,9 +2,9 @@ package ixa.srl;
 
 import ixa.kaflib.KAFDocument;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.Writer;
 
 import se.lth.cs.srl.options.CompletePipelineCMDLineOptions;
 
@@ -15,7 +15,7 @@ public class SRLService {
     private String currLang = "";
     private String currOption = "";
     
-    public void annotate(BufferedReader reader, PrintWriter writer,
+    public void annotate(Reader reader, Writer writer,
             String lang, String option) throws IOException, Exception {
         KAFDocument kaf = KAFDocument.createFromStream(reader);
         annotator.SRLToKAF(kaf, lang, option, getMatePipeline(lang, option));
