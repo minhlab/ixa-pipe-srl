@@ -23,11 +23,15 @@ public class SRLClient {
         String host = cmd.getOptionValue("h", "localhost");
 
         HttpClient client = new HttpClient();
-        client.start();
-        ContentProvider document = new InputStreamContentProvider(System.in);
-        String parseUrl = String.format("http://%s:%d?lang=eng", host, port);
-        ContentResponse response = client.POST(parseUrl).content(document).send();
-        System.out.println(response.getContentAsString());
+        try {
+            client.start();
+            ContentProvider document = new InputStreamContentProvider(System.in);
+            String parseUrl = String.format("http://%s:%d?lang=eng", host, port);
+            ContentResponse response = client.POST(parseUrl).content(document).send();
+            System.out.println(response.getContentAsString());
+        } finally {
+            client.stop();
+        }
     }
     
     private static CommandLine parseOptions(String[] args) {
