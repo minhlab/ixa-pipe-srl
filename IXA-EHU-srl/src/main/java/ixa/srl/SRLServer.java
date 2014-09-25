@@ -1,22 +1,23 @@
 package ixa.srl;
 
-import ixa.kaflib.KAFDocument;
-
 import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
-import se.lth.cs.srl.options.CompletePipelineCMDLineOptions;
-
 public class SRLServer {
 
-    private static final int DEFAULT_PORT = 8080;
+    private static final int DEFAULT_PORT = 9000;
     
     private Server httpServer;
     
@@ -39,17 +40,31 @@ public class SRLServer {
 
     public static void main(String[] args) throws Exception
     {
-        SRLServer server = new SRLServer(DEFAULT_PORT);
+        CommandLine cmd = parseOptions(args);
+        int port = DEFAULT_PORT;
+        if (cmd.hasOption("p")) {
+            port = Integer.parseInt(cmd.getOptionValue("p"));
+        }
+        SRLServer server = new SRLServer(port);
         server.start();
         server.join();
     }
     
+    private static CommandLine parseOptions(String[] args) {
+        Options options = new Options();
+        options.addOption("p", "port", true, "Port to listen to");
+        try {
+            return new PosixParser().parse(options, args);
+        } catch (ParseException e) {
+            new HelpFormatter().printHelp("server [options]", options);
+            System.exit(1);
+            return null;
+        }
+    }
+
     public static class Handler extends AbstractHandler
     {
-        private Annotate annotator = new Annotate();
-        private String currLang = "";
-        private String currOption = "";
-        private MatePipeline currPipeline = null;
+        private SRLService service = new SRLService();
         
         public synchronized void handle(String target, Request baseRequest,
                 HttpServletRequest request, HttpServletResponse response)
@@ -62,27 +77,12 @@ public class SRLServer {
 
                 String lang = firstNotNull(request.getParameter("lang"), "eng");
                 String option = firstNotNull(request.getParameter("option"), "");
-                KAFDocument kaf = KAFDocument.createFromStream(request.getReader());
-                annotator.SRLToKAF(kaf, lang, option, getMatePipeline(lang, option));
-                response.getWriter().write(kaf.toString());
+                service.annotate(request.getReader(), response.getWriter(), lang, option);
 
                 baseRequest.setHandled(true);
             } catch (Exception e) {
                 throw new ServletException(e);
             }
-        }
-        
-        private synchronized MatePipeline getMatePipeline(String lang,
-                String option) throws Exception {
-            if (currPipeline == null ||
-                    !currLang.equals(lang) || !currOption.equals(option)) {
-                CompletePipelineCMDLineOptions options = 
-                        MatePipeline.parseOptions(lang, option);
-                currPipeline = MatePipeline.getCompletePipeline(options, option);
-                currLang = lang;
-                currOption = option;
-            }
-            return currPipeline;
         }
 
         private String firstNotNull(String... strings) {
