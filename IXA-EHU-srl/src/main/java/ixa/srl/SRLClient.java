@@ -9,6 +9,8 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentProvider;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.InputStreamContentProvider;
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
 
 public class SRLClient {
 
@@ -22,6 +24,7 @@ public class SRLClient {
         }
         String host = cmd.getOptionValue("h", "localhost");
 
+        Log.setLog(new NoLogging());
         HttpClient client = new HttpClient();
         try {
             client.start();
@@ -45,6 +48,24 @@ public class SRLClient {
             System.exit(1);
             return null;
         }
+    }
+    
+    public static class NoLogging implements Logger {
+        public String getName() { return "no"; }
+        public void warn(String msg, Object... args) { }
+        public void warn(Throwable thrown) { }
+        public void warn(String msg, Throwable thrown) { }
+        public void info(String msg, Object... args) { }
+        public void info(Throwable thrown) { }
+        public void info(String msg, Throwable thrown) { }
+        public boolean isDebugEnabled() { return false; }
+        public void setDebugEnabled(boolean enabled) { }
+        public void debug(String msg, Object... args) { }
+        public void debug(Throwable thrown) { }
+        public void debug(String msg, Throwable thrown) { }
+        public Logger getLogger(String name) { return this; }
+        public void ignore(Throwable ignored) { }
+        public void debug(String msg, long value) { }
     }
 
 }
