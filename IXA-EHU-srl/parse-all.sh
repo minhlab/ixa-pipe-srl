@@ -1,4 +1,4 @@
-$DIR=$1
+DIR=$1
 
 echo "The program will parse `find $DIR -type f | wc -l` files."
 echo "The result of file X will be file X.out in the same directory."
