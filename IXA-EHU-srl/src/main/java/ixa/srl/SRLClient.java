@@ -49,11 +49,12 @@ public class SRLClient {
 	private static void handleResponse(InputStreamResponseListener listener)
 			throws InterruptedException, TimeoutException, ExecutionException,
 			IOException {
-		// Wait for the response headers to arrive
-		Response response = listener.get(5, TimeUnit.SECONDS);
-		// Look at the response
+		final long TIMEOUT_SECONDS = 180;
 		InputStream responseContent = null;
 		try {
+			// Wait for the response headers to arrive
+			Response response = listener.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+			// Look at the response
 			responseContent = listener.getInputStream();
 			if (response.getStatus() == 200) {
 				IOUtils.copy(responseContent, System.out);
@@ -61,6 +62,9 @@ public class SRLClient {
 				IOUtils.copy(responseContent, System.err);
 				System.exit(-1);
 			}
+		} catch (TimeoutException ex) {
+			System.err.printf("Timed out (%d seconds).", TIMEOUT_SECONDS);
+			System.exit(-1);
 		} finally {
 			if (responseContent != null)
 				responseContent.close();
