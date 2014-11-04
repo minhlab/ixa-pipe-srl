@@ -1,14 +1,22 @@
 package ixa.srl;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentProvider;
-import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Response;
 import org.eclipse.jetty.client.util.InputStreamContentProvider;
+import org.eclipse.jetty.client.util.InputStreamResponseListener;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 
@@ -30,12 +38,34 @@ public class SRLClient {
             client.start();
             ContentProvider document = new InputStreamContentProvider(System.in);
             String parseUrl = String.format("http://%s:%d?lang=eng", host, port);
-            ContentResponse response = client.POST(parseUrl).content(document).send();
-            System.out.println(response.getContentAsString());
+            InputStreamResponseListener listener = new InputStreamResponseListener();
+            client.POST(parseUrl).content(document).send(listener);
+            handleResponse(listener);
         } finally {
             client.stop();
         }
     }
+
+	private static void handleResponse(InputStreamResponseListener listener)
+			throws InterruptedException, TimeoutException, ExecutionException,
+			IOException {
+		// Wait for the response headers to arrive
+		Response response = listener.get(5, TimeUnit.SECONDS);
+		// Look at the response
+		InputStream responseContent = null;
+		try {
+			responseContent = listener.getInputStream();
+			if (response.getStatus() == 200) {
+				IOUtils.copy(responseContent, System.out);
+			} else {
+				IOUtils.copy(responseContent, System.err);
+				System.exit(-1);
+			}
+		} finally {
+			if (responseContent != null)
+				responseContent.close();
+		}
+	}
     
     private static CommandLine parseOptions(String[] args) {
         Options options = new Options();
